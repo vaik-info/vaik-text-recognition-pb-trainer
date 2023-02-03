@@ -23,9 +23,9 @@ class TextImageDataset:
                 font_dir_path=os.path.join(os.path.dirname(text_generator.__file__), 'fonts'),
                 char_json_path=os.path.join(os.path.dirname(__file__), 'jpn_character.json'),
                 classes_json_path=os.path.join(os.path.dirname(__file__), 'number_plate_address.json'),
-                random_text_ratio=0.5, aug_ratio=0.5, feature_divide_num=16):
+                random_text_ratio=0.5, aug_ratio=0.5, feature_divide_num=16, font_size_ratio=(64, 128)):
         cls.classes = cls.char_json_read(char_json_path)
-        cls.a_text_generator = text_generator.TextGenerator(font_dir_path)
+        cls.a_text_generator = text_generator.TextGenerator(font_dir_path, font_size_ratio)
         with open(classes_json_path, 'r') as f:
             cls.text_classes = json.load(f)['classes']
         cls.text_classes_max_size = max([len(text_class) for text_class in cls.text_classes])
@@ -45,6 +45,7 @@ class TextImageDataset:
             cls._generator,
             output_signature=cls.output_signature
         )
+
         return dataset
 
     @classmethod
@@ -56,13 +57,14 @@ class TextImageDataset:
             else:
                 text = random.choice(cls.text_classes)
             text_image = cls.a_text_generator.write(text)
+            text_image = 255 - text_image
             class_label_indexes = [cls.classes.index(a_char) for a_char in text]
             if random.uniform(0.0, 1.0) < cls.aug_ratio:
                 text_image = cls._data_aug(text_image)
+            text_image = cls._change_background(text_image)
             text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
-            text_image = 255 - text_image
-
-            canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1,cls.input_size[0]),
+            text_image = ops.data_valid(text_image)
+            canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
                                                         max(1, text_image.shape[1] + (
                                                                     cls.feature_divide_num - text_image.shape[
                                                                 1] % cls.feature_divide_num))).numpy().astype(np.uint8)
@@ -79,9 +81,15 @@ class TextImageDataset:
     def _data_aug(cls, np_image: np.array, random_r_ratio=0.25):
         np_image = ops.random_scale(np_image)
         np_image = ops.random_resize(np_image)
-        np_image = ops.random_flip(np_image)
+        # np_image = ops.random_flip(np_image)
         np_image = ops.random_padding(np_image)
         np_image = ops.random_hsv(np_image, random_ratio=random_r_ratio)
+        return np_image
+
+    @classmethod
+    def _change_background(cls, np_image: np.array):
+        background_color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+        np_image[np_image[:, :, 0] == 0] = background_color
         return np_image
 
     @classmethod

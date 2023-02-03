@@ -2,12 +2,14 @@ import tensorflow as tf
 import random
 
 def resize_upper_height_limit(np_image, resize_height):
+    np_image = data_valid(np_image)
     if (np_image.shape[0] > resize_height):
-        resize_width = int((np_image.shape[0]/resize_height) * np_image.shape[1])
+        resize_width = max(1, int((np_image.shape[0]/resize_height) * np_image.shape[1]))
         np_image = tf.image.resize(np_image, (resize_height, resize_width)).numpy()
     return np_image
 
 def random_scale(np_image, random_ratio=(0.8, 1.2)):
+    np_image = data_valid(np_image)
     max_np_image_size = max(np_image.shape)
     max_np_image_size = max(1, int(max_np_image_size * random.uniform(random_ratio[0], random_ratio[1])))
     resize_image = tf.image.resize(np_image, (max_np_image_size, max_np_image_size), preserve_aspect_ratio=True).numpy()
@@ -41,3 +43,8 @@ def random_hsv(image, max_delta=0.1, lower=2, upper=5, random_ratio=0.25):
         image = tf.image.random_saturation(image, lower, upper)
         image = image.numpy()
     return image
+
+def data_valid(np_image):
+    if 0 in np_image.shape:
+        np_image = tf.zeros((1, 1, np_image.shape[-1]), dtype=np_image.dtype)
+    return np_image
