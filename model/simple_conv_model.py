@@ -24,10 +24,11 @@ def prepare(class_num, blank_index=0, image_size=(96, None, 3), last_conv_filter
     labels = tf.keras.layers.Input((None,), dtype=tf.int32, name="labels")
     label_length = tf.keras.layers.Input((), dtype=tf.int32, name="label_length")
     logit_length = tf.keras.layers.Input((), dtype=tf.int32, name="logit_length")
-    x = CtcLossLayer(blank_index=blank_index, class_num=class_num)(inputs=[labels, x, label_length, logit_length])
+    ctc_output = CtcLossLayer(blank_index=blank_index, class_num=class_num)(inputs=[labels, x, label_length, logit_length])
 
-    model = tf.keras.Model(inputs=[input_image, labels, label_length, logit_length], outputs=x)
-    return model
+    model = tf.keras.Model(inputs=[input_image, labels, label_length, logit_length], outputs=ctc_output)
+    saved_model = tf.keras.Model(inputs=input_image, outputs=x)
+    return model, saved_model
 
 
 def conv_block(x, filter, is_pool):
