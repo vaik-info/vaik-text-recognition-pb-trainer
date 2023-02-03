@@ -45,7 +45,7 @@ def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json
     # prepare model
     classes = TrainDataset.get_classes()
     model = model_dict[model_type](len(classes), blank_index, (image_height, None, 3))
-    model.compile(optimizer=tf.keras.optimizers.Adam())
+    model.compile(optimizer=tf.keras.optimizers.SGD())
 
     # prepare callback
     save_model_dir_path = os.path.join(output_dir_path,
