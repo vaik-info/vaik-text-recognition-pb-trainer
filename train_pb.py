@@ -72,7 +72,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.path.dirname(__file__), 'data/number_plate_address.json'))
     parser.add_argument('--model_type', type=str, default='simple_conv_model')
     parser.add_argument('--epochs', type=int, default=1000)
-    parser.add_argument('--step_size', type=int, default=500)
+    parser.add_argument('--step_size', type=int, default=5000)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--test_max_sample', type=int, default=100)
     parser.add_argument('--image_height', type=int, default=96)
