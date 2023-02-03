@@ -9,7 +9,7 @@ def resize_upper_height_limit(np_image, resize_height):
 
 def random_scale(np_image, random_ratio=(0.8, 1.2)):
     max_np_image_size = max(np_image.shape)
-    max_np_image_size = int(max_np_image_size * random.uniform(random_ratio[0], random_ratio[1]))
+    max_np_image_size = max(1, int(max_np_image_size * random.uniform(random_ratio[0], random_ratio[1])))
     resize_image = tf.image.resize(np_image, (max_np_image_size, max_np_image_size), preserve_aspect_ratio=True).numpy()
     return resize_image
 

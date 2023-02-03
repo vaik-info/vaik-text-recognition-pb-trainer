@@ -71,10 +71,10 @@ if __name__ == '__main__':
     parser.add_argument('--classes_json_path', type=str,
                         default=os.path.join(os.path.dirname(__file__), 'data/number_plate_address.json'))
     parser.add_argument('--model_type', type=str, default='simple_conv_model')
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--step_size', type=int, default=100)
+    parser.add_argument('--epochs', type=int, default=1000)
+    parser.add_argument('--step_size', type=int, default=1000)
     parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--test_max_sample', type=int, default=10)
+    parser.add_argument('--test_max_sample', type=int, default=100)
     parser.add_argument('--image_height', type=int, default=96)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik_text_recognition_pb_trainer/output_model')
     args = parser.parse_args()

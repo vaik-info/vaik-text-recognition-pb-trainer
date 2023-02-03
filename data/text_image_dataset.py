@@ -62,10 +62,10 @@ class TextImageDataset:
             text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
             text_image = 255 - text_image
 
-            canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, cls.input_size[0],
-                                                        text_image.shape[1] + (
+            canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1,cls.input_size[0]),
+                                                        max(1, text_image.shape[1] + (
                                                                     cls.feature_divide_num - text_image.shape[
-                                                                1] % cls.feature_divide_num)).numpy().astype(np.uint8)
+                                                                1] % cls.feature_divide_num))).numpy().astype(np.uint8)
             yield (
                 (
                     tf.convert_to_tensor(canvas_image, dtype=tf.uint8),
