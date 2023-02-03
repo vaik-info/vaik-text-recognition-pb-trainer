@@ -66,10 +66,4 @@ class CtcLossLayer(tf.keras.layers.Layer):
                                              logits_time_major=False))
         self.add_loss(loss)
 
-        decode, prob = tf.nn.ctc_greedy_decoder(tf.transpose(logits, (1, 0, 2)), logit_length,
-                                                blank_index=self.blank_index)
-        metric = tf.reduce_mean(
-            tf.edit_distance(tf.cast(decode[0], tf.int32), tf.cast(tf.sparse.from_dense(labels), tf.int32)))
-        self.add_metric(metric, name='edit_distance')
-
         return logits
