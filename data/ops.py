@@ -29,11 +29,11 @@ def random_flip(np_image):
         np_image = tf.image.flip_left_right(np_image).numpy()
     return np_image
 
-def random_padding(np_image, random_ratio=(0.0, 0.05)):
-    left = int(np_image.shape[1] * random.uniform(random_ratio[0], random_ratio[1]))
-    right = int(np_image.shape[1] * random.uniform(random_ratio[0], random_ratio[1]))
-    top = int(np_image.shape[0] * random.uniform(random_ratio[0], random_ratio[1]))
-    bottom = int(np_image.shape[0] * random.uniform(random_ratio[0], random_ratio[1]))
+def random_padding(np_image, random_height_ratio=(0.0, 0.05), random_width_ratio=(0.0, 0.05)):
+    left = int(np_image.shape[1] * random.uniform(random_width_ratio[0], random_width_ratio[1]))
+    right = int(np_image.shape[1] * random.uniform(random_width_ratio[0], random_width_ratio[1]))
+    top = int(np_image.shape[0] * random.uniform(random_height_ratio[0], random_height_ratio[1]))
+    bottom = int(np_image.shape[0] * random.uniform(random_height_ratio[0], random_height_ratio[1]))
     np_image = tf.pad(np_image, tf.stack([[top, bottom], [left, right], [0, 0]])).numpy()
     return np_image
 
@@ -47,9 +47,4 @@ def random_hsv(image, max_delta=0.1, lower=2, upper=5, random_ratio=0.25):
 def data_valid(np_image):
     if 0 in np_image.shape:
         np_image = tf.zeros((1, 1, np_image.shape[-1]), dtype=np_image.dtype)
-    return np_image
-
-def change_background(np_image):
-    background_color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-    np_image[tf.reduce_sum(np_image, axis=-1).numpy() < 1] = background_color
     return np_image
