@@ -62,13 +62,13 @@ class TextImageDataset:
             class_label_indexes = [cls.classes.index(a_char) for a_char in text]
             if random.uniform(0.0, 1.0) < cls.aug_ratio:
                 text_image = cls._data_aug(text_image)
-            text_image = ops.change_background(text_image)
             text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
             text_image = ops.data_valid(text_image)
             canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
                                                         max(1, text_image.shape[1] + (
                                                                     cls.feature_divide_num - text_image.shape[
                                                                 1] % cls.feature_divide_num))).numpy().astype(np.uint8)
+            canvas_image = ops.change_background(canvas_image)
             yield (
                 (
                     tf.convert_to_tensor(canvas_image, dtype=tf.uint8),
