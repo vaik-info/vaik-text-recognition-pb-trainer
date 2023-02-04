@@ -48,3 +48,8 @@ def data_valid(np_image):
     if 0 in np_image.shape:
         np_image = tf.zeros((1, 1, np_image.shape[-1]), dtype=np_image.dtype)
     return np_image
+
+def change_background(np_image):
+    background_color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+    np_image[tf.reduce_sum(np_image, axis=-1).numpy() < 1] = background_color
+    return np_image

@@ -41,6 +41,7 @@ class TextImageDataset:
                 tf.TensorSpec(name=f'logit_length', shape=(), dtype=tf.int32),
             ),
         )
+
         dataset = tf.data.Dataset.from_generator(
             cls._generator,
             output_signature=cls.output_signature
@@ -61,7 +62,7 @@ class TextImageDataset:
             class_label_indexes = [cls.classes.index(a_char) for a_char in text]
             if random.uniform(0.0, 1.0) < cls.aug_ratio:
                 text_image = cls._data_aug(text_image)
-            text_image = cls._change_background(text_image)
+            text_image = ops.change_background(text_image)
             text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
             text_image = ops.data_valid(text_image)
             canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
@@ -84,12 +85,6 @@ class TextImageDataset:
         # np_image = ops.random_flip(np_image)
         np_image = ops.random_padding(np_image)
         np_image = ops.random_hsv(np_image, random_ratio=random_r_ratio)
-        return np_image
-
-    @classmethod
-    def _change_background(cls, np_image: np.array):
-        background_color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-        np_image[np_image[:, :, 0] == 0] = background_color
         return np_image
 
     @classmethod

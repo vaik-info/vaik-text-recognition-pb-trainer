@@ -25,7 +25,8 @@ def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json
           model_type, epochs, step_size, batch_size, test_max_sample, image_height, output_dir_path, blank_index=0):
     # train
     TrainDataset = type(f'TrainDataset', (text_image_dataset.TextImageDataset,), dict())
-    train_dataset = TrainDataset((image_height, None), train_font_dir_path, char_json_path, classes_json_path)
+    train_dataset = TrainDataset((image_height, None), train_font_dir_path, char_json_path, classes_json_path,
+                                 random_text_ratio=0.2, aug_ratio=0.2)
     train_dataset = train_dataset.padded_batch(batch_size=batch_size, padding_values=((tf.constant(0, dtype=tf.uint8),
                                                                                        tf.constant(blank_index, dtype=tf.int32),
                                                                                        tf.constant(0, dtype=tf.int32),
