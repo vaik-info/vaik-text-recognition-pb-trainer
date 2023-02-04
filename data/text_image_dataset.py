@@ -54,7 +54,7 @@ class TextImageDataset:
         while True:
             if random.uniform(0.0, 1.0) < cls.random_text_ratio:
                 text = "".join(
-                    [random.choice(cls.classes) for _ in range(random.randint(1, cls.text_classes_max_size))])
+                    [random.choice(cls.classes[:cls.classes.index("弌")]) for _ in range(random.randint(1, cls.text_classes_max_size))])
             else:
                 text = random.choice(cls.text_classes)
             text_image = cls.a_text_generator.write(text)

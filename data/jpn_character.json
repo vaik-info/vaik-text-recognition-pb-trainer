@@ -1,11 +1,10 @@
 {
-  "character":
-  [
+  "character": [
     {
       "category": "blank",
       "classes": [
         "∴"
-        ]
+      ]
     },
     {
       "category": "symbol",
@@ -60,7 +59,6 @@
         "々",
         "〆",
         "○"
-
       ]
     },
     {
@@ -311,7 +309,7 @@
       ]
     },
     {
-      "category": "kanji",
+      "category": "kanji1",
       "classes": [
         "亜",
         "唖",
@@ -3278,7 +3276,12 @@
         "椀",
         "湾",
         "碗",
-        "腕",
+        "腕"
+      ]
+    },
+    {
+      "category": "kanji2",
+      "classes": [
         "弌",
         "丐",
         "丕",
@@ -6668,7 +6671,12 @@
         "遙",
         "瑤",
         "凜",
-        "熙",
+        "熙"
+      ]
+    },
+    {
+      "category": "kanji3",
+      "classes": [
         "俱",
         "𠀋",
         "㐂",
