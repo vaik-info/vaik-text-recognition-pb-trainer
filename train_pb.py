@@ -64,7 +64,7 @@ def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train pb')
     parser.add_argument('--train_font_dir_path', type=str,
-                        default=os.path.join(os.path.dirname(text_generator.__file__), 'fonts'))
+                        default=os.path.join(os.path.dirname(__file__), 'data/train_font/font'))
     parser.add_argument('--valid_font_dir_path', type=str,
                         default=os.path.join(os.path.dirname(text_generator.__file__), 'fonts'))
     parser.add_argument('--char_json_path', type=str,
