@@ -48,7 +48,6 @@ class TextImageDataset:
             cls._generator,
             output_signature=cls.output_signature
         )
-
         return dataset
 
     @classmethod
@@ -69,37 +68,43 @@ class TextImageDataset:
                 class_label_indexes = [cls.classes.index(a_char) for a_char in text]
                 if random.uniform(0.0, 1.0) < cls.aug_ratio:
                     text_image = cls._data_aug(text_image)
-                text_image = ops.random_padding(text_image, random_height_ratio=(0.0, 0.25), random_width_ratio=(0.0, 0.75))
+                text_image = ops.random_padding(text_image, random_height_ratio=(0.0, 0.1), random_width_ratio=(0.0, 0.25))
                 text_image = ops.data_valid(text_image)
                 text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
                 canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
                                                             max(1, text_image.shape[1] + (
                                                                         cls.feature_divide_num - text_image.shape[
                                                                     1] % cls.feature_divide_num))).numpy().astype(np.uint8)
-                image_list.append(tf.convert_to_tensor(canvas_image, dtype=tf.uint8))
-                labels_list.append(tf.convert_to_tensor(class_label_indexes, dtype=tf.int32))
-                label_length_list.append(tf.convert_to_tensor(len(class_label_indexes), dtype=tf.int32))
-                logit_length_list.append(tf.convert_to_tensor(canvas_image.shape[1]//cls.feature_divide_num, dtype=tf.int32))
+                image_list.append(canvas_image)
+                labels_list.append(class_label_indexes)
+                label_length_list.append(len(class_label_indexes))
+                logit_length_list.append(canvas_image.shape[1]//cls.feature_divide_num)
 
             # Batch
             max_height = max([image.shape[0] for image in image_list])
             max_width = max([image.shape[1] for image in image_list])
+            images = np.zeros((cls.batch_size, max_height, max_width, 3), dtype=np.uint8)
             for image_index in range(len(image_list)):
-                image_list[image_index] = tf.image.pad_to_bounding_box(image_list[image_index], 0, 0, max_height, max_width).numpy().astype(np.uint8)
+                images[image_index, :image_list[image_index].shape[0], :image_list[image_index].shape[1], :] = image_list[image_index]
 
-            max_label_length = max([labels.shape[0] for labels in labels_list])
+            max_label_length = max([len(labels) for labels in labels_list])
+            labels = np.zeros((cls.batch_size, max_label_length), dtype=np.int32)
             for labels_index in range(len(labels_list)):
-                labels_list[labels_index] = tf.pad(labels_list[labels_index], [[0, max_label_length - labels_list[labels_index].shape[0]]]).numpy().astype(np.uint8)
+                labels[labels_index, :len(labels_list[labels_index])] = np.asarray(labels_list[labels_index])
 
+            max_logit_length = max_width//cls.feature_divide_num
+            logit_length = np.zeros((cls.batch_size, ), dtype=np.int32)
             for logit_length_index in range(len(logit_length_list)):
-                logit_length_list[logit_length_index] = max_width//cls.feature_divide_num
+                logit_length[logit_length_index] = max_logit_length
+
+            label_length = np.asarray(label_length_list)
 
             yield (
                 (
-                    tf.stack(image_list),
-                    tf.stack(labels_list),
-                    tf.stack(label_length_list),
-                    tf.stack(logit_length_list),
+                    images,
+                    labels,
+                    logit_length,
+                    label_length,
                 ),
             )
 
