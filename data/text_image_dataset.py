@@ -15,12 +15,11 @@ class TextImageDataset:
     text_classes_max_size = None
     a_text_generator = None
     input_size = None
-    batch_size = None
     aug_ratio = None
     feature_divide_num = None
     output_signature = None
 
-    def __new__(cls, input_size=(96, None), batch_size=16,
+    def __new__(cls, input_size=(96, None),
                 font_dir_path=os.path.join(os.path.dirname(text_generator.__file__), 'fonts'),
                 char_json_path=os.path.join(os.path.dirname(__file__), 'jpn_character.json'),
                 classes_json_path=os.path.join(os.path.dirname(__file__), 'number_plate_address.json'),
@@ -32,15 +31,14 @@ class TextImageDataset:
         cls.text_classes_max_size = max([len(text_class) for text_class in cls.text_classes])
         cls.random_text_ratio = random_text_ratio
         cls.input_size = input_size
-        cls.batch_size = batch_size
         cls.aug_ratio = aug_ratio
         cls.feature_divide_num = feature_divide_num
         cls.output_signature = (
             (
-                tf.TensorSpec(name=f'image', shape=(batch_size, input_size[0], input_size[1], 3), dtype=tf.uint8),
-                tf.TensorSpec(name=f'labels', shape=(batch_size, None,), dtype=tf.int32),
-                tf.TensorSpec(name=f'label_length', shape=(batch_size, ), dtype=tf.int32),
-                tf.TensorSpec(name=f'logit_length', shape=(batch_size, ), dtype=tf.int32),
+                tf.TensorSpec(name=f'image', shape=(input_size[0], input_size[1], 3), dtype=tf.uint8),
+                tf.TensorSpec(name=f'labels', shape=(None,), dtype=tf.int32),
+                tf.TensorSpec(name=f'label_length', shape=(), dtype=tf.int32),
+                tf.TensorSpec(name=f'logit_length', shape=(), dtype=tf.int32),
             ),
         )
 
@@ -48,63 +46,35 @@ class TextImageDataset:
             cls._generator,
             output_signature=cls.output_signature
         )
+
         return dataset
 
     @classmethod
     def _generator(cls):
         while True:
-            image_list = []
-            labels_list = []
-            label_length_list = []
-            logit_length_list = []
-            for i in range(cls.batch_size):
-                if random.uniform(0.0, 1.0) < cls.random_text_ratio:
-                    text = "".join(
-                        [random.choice(cls.classes[:cls.classes.index("弌")]) for _ in range(random.randint(1, cls.text_classes_max_size))])
-                else:
-                    text = random.choice(cls.text_classes)
-                text_image = cls.a_text_generator.write(text)
-                text_image = 255 - text_image
-                class_label_indexes = [cls.classes.index(a_char) for a_char in text]
-                if random.uniform(0.0, 1.0) < cls.aug_ratio:
-                    text_image = cls._data_aug(text_image)
-                text_image = ops.random_padding(text_image, random_height_ratio=(0.0, 0.1), random_width_ratio=(0.0, 0.25))
-                text_image = ops.data_valid(text_image)
-                text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
-                canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
-                                                            max(1, text_image.shape[1] + (
-                                                                        cls.feature_divide_num - text_image.shape[
-                                                                    1] % cls.feature_divide_num))).numpy().astype(np.uint8)
-                image_list.append(canvas_image)
-                labels_list.append(class_label_indexes)
-                label_length_list.append(len(class_label_indexes))
-                logit_length_list.append(canvas_image.shape[1]//cls.feature_divide_num)
-
-            # Batch
-            max_height = max([image.shape[0] for image in image_list])
-            max_width = max([image.shape[1] for image in image_list])
-            images = np.zeros((cls.batch_size, max_height, max_width, 3), dtype=np.uint8)
-            for image_index in range(len(image_list)):
-                images[image_index, :image_list[image_index].shape[0], :image_list[image_index].shape[1], :] = image_list[image_index]
-
-            max_label_length = max([len(labels) for labels in labels_list])
-            labels = np.zeros((cls.batch_size, max_label_length), dtype=np.int32)
-            for labels_index in range(len(labels_list)):
-                labels[labels_index, :len(labels_list[labels_index])] = np.asarray(labels_list[labels_index])
-
-            max_logit_length = max_width//cls.feature_divide_num
-            logit_length = np.zeros((cls.batch_size, ), dtype=np.int32)
-            for logit_length_index in range(len(logit_length_list)):
-                logit_length[logit_length_index] = max_logit_length
-
-            label_length = np.asarray(label_length_list)
-
+            if random.uniform(0.0, 1.0) < cls.random_text_ratio:
+                text = "".join(
+                    [random.choice(cls.classes[:cls.classes.index("弌")]) for _ in range(random.randint(1, cls.text_classes_max_size))])
+            else:
+                text = random.choice(cls.text_classes)
+            text_image = cls.a_text_generator.write(text)
+            text_image = 255 - text_image
+            class_label_indexes = [cls.classes.index(a_char) for a_char in text]
+            if random.uniform(0.0, 1.0) < cls.aug_ratio:
+                text_image = cls._data_aug(text_image)
+            text_image = ops.random_padding(text_image, random_height_ratio=(0.0, 0.25), random_width_ratio=(0.0, 0.75))
+            text_image = ops.data_valid(text_image)
+            text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
+            canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
+                                                        max(1, text_image.shape[1] + (
+                                                                cls.feature_divide_num - text_image.shape[
+                                                            1] % cls.feature_divide_num))).numpy().astype(np.uint8)
             yield (
                 (
-                    images,
-                    labels,
-                    logit_length,
-                    label_length,
+                    tf.convert_to_tensor(canvas_image, dtype=tf.uint8),
+                    tf.convert_to_tensor(class_label_indexes, dtype=tf.int32),
+                    tf.convert_to_tensor(len(class_label_indexes), dtype=tf.int32),
+                    tf.convert_to_tensor(canvas_image.shape[1]//cls.feature_divide_num, dtype=tf.int32),
                 ),
             )
 
@@ -119,10 +89,10 @@ class TextImageDataset:
     @classmethod
     def get_all_data(cls, dataset, max_sample_num=100):
         dataset = dataset.padded_batch(batch_size=max_sample_num, padding_values=((tf.constant(0, dtype=tf.uint8),
-                                                              tf.constant(0, dtype=tf.int32),
-                                                              tf.constant(0, dtype=tf.int32),
-                                                              tf.constant(0,
-                                                                          dtype=tf.int32)),))
+                                                                                   tf.constant(0, dtype=tf.int32),
+                                                                                   tf.constant(0, dtype=tf.int32),
+                                                                                   tf.constant(0,
+                                                                                               dtype=tf.int32)),))
         dataset = iter(dataset)
         data_list = []
         sample_num = 0
