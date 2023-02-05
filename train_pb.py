@@ -10,14 +10,15 @@ tf.debugging.disable_traceback_filtering()
 
 from data import text_image_dataset
 from vaik_text_generator import text_generator
-from model import simple_conv_model
+from model import simple_conv_model, simple_tcn_model
 
 from callbacks import save_callback
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 
 model_dict = {
-    'simple_conv_model': simple_conv_model.prepare
+    'simple_conv_model': simple_conv_model.prepare,
+    'simple_tcn_model': simple_tcn_model.prepare
 }
 
 
