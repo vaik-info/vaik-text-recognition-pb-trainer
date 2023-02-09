@@ -19,7 +19,7 @@ def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_ne
     x = gru_block(x, gru_unit)
     x = gru_block(x, gru_unit)
 
-    x = tf.keras.layers.Dense(class_num+1, activation='softmax')(x)
+    x = tf.keras.layers.Dense(class_num+1)(x)
 
     labels = tf.keras.layers.Input((None,), dtype=tf.int32, name="labels")
     label_length = tf.keras.layers.Input((), dtype=tf.int32, name="label_length")
