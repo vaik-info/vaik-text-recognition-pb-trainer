@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def prepare(class_num, blank_index=0, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=256):
+def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=256):
     input_image = tf.keras.layers.Input(shape=image_size, name="image")
 
     x = conv_block(input_image, 32, True)
@@ -24,7 +24,7 @@ def prepare(class_num, blank_index=0, image_size=(96, None, 3), last_conv_filter
     labels = tf.keras.layers.Input((None,), dtype=tf.int32, name="labels")
     label_length = tf.keras.layers.Input((), dtype=tf.int32, name="label_length")
     logit_length = tf.keras.layers.Input((), dtype=tf.int32, name="logit_length")
-    ctc_output = CtcLossLayer(blank_index=blank_index, class_num=class_num)(inputs=[labels, x, label_length, logit_length])
+    ctc_output = CtcLossLayer(class_num=class_num)(inputs=[labels, x, label_length, logit_length])
 
     model = tf.keras.Model(inputs=[input_image, labels, label_length, logit_length], outputs=ctc_output)
     saved_model = tf.keras.Model(inputs=input_image, outputs=x)
@@ -66,14 +66,13 @@ def tcn_convolution_block(input, num_filters):
 
 
 class CtcLossLayer(tf.keras.layers.Layer):
-    def __init__(self, blank_index=0, class_num=10):
-        self.blank_index = blank_index
+    def __init__(self, class_num=10):
         self.class_num = class_num
         super(CtcLossLayer, self).__init__()
 
     def call(self, inputs, *args, **kwargs):
         labels, logits, label_length, logit_length = inputs
-        loss = tf.reduce_mean(tf.nn.ctc_loss(labels, logits, label_length, logit_length, blank_index=self.blank_index,
+        loss = tf.reduce_mean(tf.nn.ctc_loss(labels, logits, label_length, logit_length, blank_index=self.class_num-1,
                                              logits_time_major=False))
         self.add_loss(loss)
 

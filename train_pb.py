@@ -5,12 +5,13 @@ from datetime import datetime
 import pytz
 import tensorflow as tf
 
+from model import simple_conv_model, simple_tcn_model
+
 tf.get_logger().setLevel('ERROR')
 tf.debugging.disable_traceback_filtering()
 
 from data import text_image_dataset
 from vaik_text_generator import text_generator
-from model import simple_conv_model, simple_tcn_model
 
 from callbacks import save_callback
 
@@ -23,13 +24,14 @@ model_dict = {
 
 
 def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json_path,
-          model_type, epochs, step_size, batch_size, test_max_sample, image_height, output_dir_path, blank_index=0):
+          model_type, epochs, step_size, batch_size, test_max_sample, image_height, output_dir_path):
     # train
     TrainDataset = type(f'TrainDataset', (text_image_dataset.TextImageDataset,), dict())
     train_dataset = TrainDataset((image_height, None), train_font_dir_path, char_json_path, classes_json_path,
                                  random_text_ratio=0.2, aug_ratio=0.2)
+    classes = TrainDataset.get_classes()
     train_dataset = train_dataset.padded_batch(batch_size=batch_size, padding_values=((tf.constant(0, dtype=tf.uint8),
-                                                                                       tf.constant(blank_index, dtype=tf.int32),
+                                                                                       tf.constant(len(classes), dtype=tf.int32),
                                                                                        tf.constant(0, dtype=tf.int32),
                                                                                        tf.constant(0,
                                                                                                    dtype=tf.int32)),))
@@ -45,8 +47,7 @@ def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json
     valid_data = next(iter(valid_dataset))
 
     # prepare model
-    classes = TrainDataset.get_classes()
-    model, saved_model = model_dict[model_type](len(classes), blank_index, (image_height, None, 3))
+    model, saved_model = model_dict[model_type](len(classes), (image_height, None, 3))
     model.compile(optimizer=tf.keras.optimizers.SGD())
 
     # prepare callback
@@ -74,7 +75,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.path.dirname(__file__), 'data/number_plate_address.json'))
     parser.add_argument('--model_type', type=str, default='simple_conv_model')
     parser.add_argument('--epochs', type=int, default=1000)
-    parser.add_argument('--step_size', type=int, default=5000)
+    parser.add_argument('--step_size', type=int, default=50)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--test_max_sample', type=int, default=100)
     parser.add_argument('--image_height', type=int, default=96)

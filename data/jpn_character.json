@@ -1,12 +1,6 @@
 {
   "character": [
     {
-      "category": "blank",
-      "classes": [
-        "∴"
-      ]
-    },
-    {
       "category": "symbol",
       "classes": [
         "\"",
