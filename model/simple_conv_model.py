@@ -62,7 +62,7 @@ class CtcLossLayer(tf.keras.layers.Layer):
 
     def call(self, inputs, *args, **kwargs):
         labels, logits, label_length, logit_length = inputs
-        loss = tf.reduce_mean(tf.nn.ctc_loss(labels, logits, label_length, logit_length, blank_index=self.class_num-1,
+        loss = tf.reduce_mean(tf.nn.ctc_loss(labels, logits, label_length, logit_length, blank_index=-1,
                                              logits_time_major=False))
         self.add_loss(loss)
 

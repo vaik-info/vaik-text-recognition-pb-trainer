@@ -40,7 +40,7 @@ def train(train_font_dir_path, valid_font_dir_path, char_json_path, classes_json
     valid_dataset = ValidDataset((image_height, None), valid_font_dir_path, char_json_path, classes_json_path,
                                  random_text_ratio=0.1, aug_ratio=0.1)
     valid_dataset = valid_dataset.padded_batch(batch_size=test_max_sample, padding_values=((tf.constant(0, dtype=tf.uint8),
-                                                                                            tf.constant(0, dtype=tf.int32),
+                                                                                            tf.constant(len(classes), dtype=tf.int32),
                                                                                             tf.constant(0, dtype=tf.int32),
                                                                                             tf.constant(0,
                                                                                                         dtype=tf.int32)),))
