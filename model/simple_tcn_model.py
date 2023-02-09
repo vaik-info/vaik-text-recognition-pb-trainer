@@ -19,7 +19,7 @@ def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_ne
     x = tcn_convolution_block(x, tcn_unit)
     x = tcn_convolution_block(x, tcn_unit)
 
-    x = tf.keras.layers.Dense(class_num+1)(x)
+    x = tf.keras.layers.Dense(class_num+1, activation='softmax')(x)
 
     labels = tf.keras.layers.Input((None,), dtype=tf.int32, name="labels")
     label_length = tf.keras.layers.Input((), dtype=tf.int32, name="label_length")
@@ -30,7 +30,7 @@ def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_ne
     saved_model = tf.keras.Model(inputs=input_image, outputs=x)
     return model, saved_model
 
-
+tf.keras.backend.ctc_batch_cost
 def conv_block(x, filter, is_pool):
     x = tf.keras.layers.Conv2D(filters=filter, kernel_size=3, padding='same')(x)
     if is_pool:
