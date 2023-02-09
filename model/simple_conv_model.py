@@ -24,7 +24,7 @@ def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_ne
     labels = tf.keras.layers.Input((None,), dtype=tf.int32, name="labels")
     label_length = tf.keras.layers.Input((), dtype=tf.int32, name="label_length")
     logit_length = tf.keras.layers.Input((), dtype=tf.int32, name="logit_length")
-    ctc_output = CtcLossLayer(class_num=class_num)(inputs=[labels, x, label_length, logit_length])
+    ctc_output = CtcLossLayer()(inputs=[labels, x, label_length, logit_length])
 
     model = tf.keras.Model(inputs=[input_image, labels, label_length, logit_length], outputs=ctc_output)
     saved_model = tf.keras.Model(inputs=input_image, outputs=x)
@@ -56,8 +56,7 @@ def gru_block(x, units):
 
 
 class CtcLossLayer(tf.keras.layers.Layer):
-    def __init__(self, class_num=10):
-        self.class_num = class_num
+    def __init__(self):
         super(CtcLossLayer, self).__init__()
 
     def call(self, inputs, *args, **kwargs):
