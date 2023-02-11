@@ -65,10 +65,15 @@ class TextImageDataset:
             text_image = ops.random_padding(text_image, random_height_ratio=(0.0, 0.25), random_width_ratio=(0.0, 0.75))
             text_image = ops.data_valid(text_image)
             text_image = ops.resize_upper_height_limit(text_image, cls.input_size[0])
+            if cls.input_size[1] is not None:
+                text_image = ops.resize_upper_height_width_limit(text_image, cls.input_size[0], cls.input_size[1])
+                canvas_image_width = cls.input_size[1]
+            else:
+                canvas_image_width = max(1, text_image.shape[1] + (
+                        cls.feature_divide_num - text_image.shape[
+                    1] % cls.feature_divide_num))
             canvas_image = tf.image.pad_to_bounding_box(text_image, 0, 0, max(1, cls.input_size[0]),
-                                                        max(1, text_image.shape[1] + (
-                                                                cls.feature_divide_num - text_image.shape[
-                                                            1] % cls.feature_divide_num))).numpy().astype(np.uint8)
+                                                        canvas_image_width).numpy().astype(np.uint8)
             yield (
                 (
                     tf.convert_to_tensor(canvas_image, dtype=tf.uint8),
