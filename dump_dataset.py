@@ -31,7 +31,7 @@ def dump(train_font_dir_path, char_json_path, classes_json_path, image_height, i
         image, label, _, _ = train_dataset.get_next()[0]
         image = image.numpy()[0]
         label = label.numpy().tolist()[0]
-        text = decode2labels(label, classes, len(classes)-1)
+        text = decode2labels(label, classes, len(classes)-1).replace('/', '')
         output_image_path = os.path.join(output_dir_path, f'{text}_{index:05d}.jpg')
         Image.fromarray(image).save(output_image_path, quality=100, subsampling=0)
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.path.dirname(__file__), 'data/number_plate_address.json'))
     parser.add_argument('--image_height', type=int, default=96)
     parser.add_argument('--image_width', type=int, default=576)
-    parser.add_argument('--sample_num', type=int, default=2500)
+    parser.add_argument('--sample_num', type=int, default=25000)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik_text_recognition_pb_trainer/dump_dataset')
     args = parser.parse_args()
 

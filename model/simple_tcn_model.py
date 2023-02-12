@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=256):
+def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=128):
     input_image = tf.keras.layers.Input(shape=image_size, name="image")
 
     x = conv_block(input_image, 32, True)
@@ -35,14 +35,14 @@ def conv_block(x, filter, is_pool):
     if is_pool:
         x = tf.keras.layers.MaxPool2D(pool_size=(2, 2))(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    x = tf.keras.layers.ELU()(x)
+    x = tf.keras.layers.ReLU()(x)
     return x
 
 
 def dense_block(x, units):
     x = tf.keras.layers.Dense(units=units)(x)
     x = tf.keras.layers.BatchNormalization()(x)
-    x = tf.keras.layers.ELU()(x)
+    x = tf.keras.layers.ReLU()(x)
     return x
 
 def conv1d_block(input, num_filters, dilate):
@@ -51,7 +51,7 @@ def conv1d_block(input, num_filters, dilate):
     x = tf.keras.layers.Conv1D(num_filters, 3, dilation_rate=dilate, padding="same")(x)
     input = tf.keras.layers.Conv1D(num_filters, 1, padding="same")(input)
     x = tf.keras.layers.Add()([input, x])
-    x = tf.keras.layers.ELU()(x)
+    x = tf.keras.layers.ReLU()(x)
     x = tf.keras.layers.BatchNormalization()(x)
     return x
 
