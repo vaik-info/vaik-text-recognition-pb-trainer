@@ -60,6 +60,7 @@ def tcn_convolution_block(input, num_filters):
     x = conv1d_block(x, num_filters, 2)
     x = conv1d_block(x, num_filters, 4)
     x = conv1d_block(x, num_filters, 8)
+    x = conv1d_block(x, num_filters, 16)
     x = tf.keras.layers.BatchNormalization()(x)
     return x
 
