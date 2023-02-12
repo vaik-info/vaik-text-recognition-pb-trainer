@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=128):
+def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=256):
     input_image = tf.keras.layers.Input(shape=image_size, name="image")
 
     x = conv_block(input_image, 32, True)
