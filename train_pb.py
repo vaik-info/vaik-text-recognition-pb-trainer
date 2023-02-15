@@ -5,7 +5,7 @@ from datetime import datetime
 import pytz
 import tensorflow as tf
 
-from model import simple_conv_model, simple_tcn_model
+from model import simple_conv_model
 
 tf.get_logger().setLevel('ERROR')
 tf.debugging.disable_traceback_filtering()
@@ -18,8 +18,7 @@ from callbacks import save_callback
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 
 model_dict = {
-    'simple_conv_model': simple_conv_model.prepare,
-    'simple_tcn_model': simple_tcn_model.prepare
+    'simple_conv_model': simple_conv_model.prepare
 }
 
 
