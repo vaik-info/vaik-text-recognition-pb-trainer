@@ -45,7 +45,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.path.dirname(__file__), 'data/number_plate_address.json'))
     parser.add_argument('--image_height', type=int, default=96)
     parser.add_argument('--image_width', type=int, default=576)
-    parser.add_argument('--sample_num', type=int, default=25000)
+    parser.add_argument('--sample_num', type=int, default=2500)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik_text_recognition_pb_trainer/dump_dataset')
     args = parser.parse_args()
 
