@@ -17,7 +17,6 @@ def prepare(class_num, image_size=(96, None, 3), last_conv_filter=256, bottle_ne
     x = dense_block(x, bottle_neck)
 
     x = tcn_convolution_block(x, tcn_unit)
-    x = tcn_convolution_block(x, tcn_unit)
 
     x = tf.keras.layers.Dense(class_num)(x)
 
@@ -60,7 +59,6 @@ def tcn_convolution_block(input, num_filters):
     x = conv1d_block(x, num_filters, 2)
     x = conv1d_block(x, num_filters, 4)
     x = conv1d_block(x, num_filters, 8)
-    x = conv1d_block(x, num_filters, 16)
     x = tf.keras.layers.BatchNormalization()(x)
     return x
 
