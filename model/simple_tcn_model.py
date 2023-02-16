@@ -27,7 +27,6 @@ def prepare(class_num, image_size=(96, 256, 3), last_conv_filter=256, bottle_nec
 
     model = tf.keras.Model(inputs=[input_image, labels, label_length, logit_length], outputs=ctc_output)
     saved_model = tf.keras.Model(inputs=input_image, outputs=x)
-    tf.keras.utils.plot_model(saved_model, 'model.png', show_shapes=True, show_dtype=True, show_layer_names=True, show_layer_activations=True)
     return model, saved_model
 
 def conv_block(x, filter, is_pool):
