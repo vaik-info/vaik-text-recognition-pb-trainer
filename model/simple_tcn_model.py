@@ -3,8 +3,8 @@ import tensorflow as tf
 
 def prepare(class_num, image_size=(96, 256, 3), last_conv_filter=256, bottle_neck=128, tcn_unit=256):
     input_image = tf.keras.layers.Input(shape=image_size, name="image")
-
-    x = conv_block(input_image, 32, True)
+    x = tf.keras.layers.Rescaling(scale=1./255)(input_image)
+    x = conv_block(x, 32, True)
     x = conv_block(x, 64, True)
     x = conv_block(x, 128, False)
     x = conv_block(x, 128, True)
