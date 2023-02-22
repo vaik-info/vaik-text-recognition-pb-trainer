@@ -1,6 +1,6 @@
-# vaik-text-recoglition-pb-trainer
+# vaik-text-recognition-pb-trainer
 
-Train text recoglition pb model
+Train text recognition pb model
 
 ## train_pb.py
 
