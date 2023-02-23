@@ -41,7 +41,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.path.dirname(__file__), 'data/jpn_character.json'))
     parser.add_argument('--model_type', type=str, default='simple_tcn_model')
     parser.add_argument('--image_height', type=int, default=96)
-    parser.add_argument('--image_width', type=int, default=512)
+    parser.add_argument('--image_width', type=int, default=576)
     parser.add_argument('--output_dir_path', type=str, default='~/.vaik_text_recognition_pb_trainer/output_fixed_model')
     args = parser.parse_args()
 
